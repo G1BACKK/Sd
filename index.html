@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #app {
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* Timer Display */
+        .timer-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1000;
+            border: 2px solid #ff4444;
+        }
+        
+        .timer-expired {
+            color: #ff4444;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .reel-container {
+            height: 100vh;
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .reel-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .video-item {
+            height: 100vh;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            background-color: #000;
+        }
+        
+        .video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        
+        .video-blocked {
+            filter: blur(20px);
+            pointer-events: none;
+        }
+        
+        .block-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .block-message {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .block-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #ff4444;
+        }
+        
+        .block-subtitle {
+            font-size: 16px;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .watch-ad-btn {
+            background: linear-gradient(45deg, #ff4444, #ff6666);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .watch-ad-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Advertisement Modal */
+        .ad-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .ad-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .ad-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .ad-timer {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .ad-skip {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+        }
+        
+        /* Loading */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #ff4444;
+            border-radius: 50%;
+            animation: loading 1s linear infinite;
+        }
+        
+        @keyframes loading {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Timer Display -->
+        <div class="timer-display" id="timerDisplay">01:00</div>
+        
+        <!-- Video Container -->
+        <div class="reel-container" id="reelContainer">
+            <div class="loading" id="mainLoading"></div>
+        </div>
+        
+        <!-- Advertisement Modal -->
+        <div class="ad-modal" id="adModal">
+            <div class="ad-content">
+                <video class="ad-video" id="adVideo" muted>
+                    <!-- Default ad video -->
+                    <source src="https://files.catbox.moe/sample-ad.mp4" type="video/mp4">
+                </video>
+                <div class="ad-timer" id="adTimer">Ad: 10s</div>
+                <button class="ad-skip" id="adSkip" onclick="skipAd()">Skip Ad</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let freeTimeLeft = 60; // 60 seconds free time
+        let timerInterval;
+        let currentVideoIndex = 0;
+        let videos = [];
+        let videoQueue = [];
+        let playedVideos = new Set();
+        let isAdPlaying = false;
+        let adTimeLeft = 10;
+        let adInterval;
+        
+        // Sample video data - will be loaded from admin panel
+        let videoData = [];
+        
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVideosFromAdmin();
+            startFreeTimer();
+        });
+        
+        // Load videos from admin panel (localStorage simulation)
+        function loadVideosFromAdmin() {
+            const adminVideos = JSON.parse(localStorage.getItem('adminVideos') || '[]');
+            
+            // Default videos if no admin videos
+            if (adminVideos.length === 0) {
+                videoData = [
+                    {
+                        id: 1,
+                        url: 'https://files.catbox.moe/hzkafz.mp4',
+                        profilePic: 'https://randomuser.me/api/portraits/women/43.jpg'
+                    },
+                    {
+                        id: 2,
+                        url: 'https://files.catbox.moe/ydvhlj.mp4',
+                        profilePic: 'https://randomuser.me/api/portraits/men/32.jpg'
+                    },
+                    {
+                        id: 3,
+                        url: 'https://files.catbox.moe/f51hcd.mp4',
+                        profilePic: 'https://randomuser.me/api/portraits/women/68.jpg'
+                    },
+                    {
+                        id: 4,
+                        url: 'https://files.catbox.moe/k72xyn.mp4',
+                        profilePic: 'https://randomuser.me/api/portraits/men/75.jpg'
+                    }
+                ];
+            } else {
+                videoData = adminVideos;
+            }
+            
+            shuffleVideos();
+            createVideoElements();
+        }
+        
+        // Shuffle videos randomly
+        function shuffleVideos() {
+            videoQueue = [...videoData];
+            for (let i = videoQueue.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [videoQueue[i], videoQueue[j]] = [videoQueue[j], videoQueue[i]];
+            }
+        }
+        
+        // Create video elements
+        function createVideoElements() {
+            const container = document.getElementById('reelContainer');
+            const loading = document.getElementById('mainLoading');
+            loading.style.display = 'none';
+            
+            videoQueue.forEach((videoInfo, index) => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                videoItem.innerHTML = `
+                    <video class="video-player" loop muted data-video-id="${videoInfo.id}">
+                        <source src="${videoInfo.url}" type="video/mp4">
+                    </video>
+                `;
+                container.appendChild(videoItem);
+            });
+            
+            videos = document.querySelectorAll('.video-player');
+            setupVideoEvents();
+            
+            // Play first video
+            if (videos.length > 0) {
+                playVideo(videos[0]);
+            }
+        }
+        
+        // Setup video events
+        function setupVideoEvents() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const video = entry.target;
+                    if (entry.isIntersecting && freeTimeLeft > 0) {
+                        currentVideoIndex = Array.from(videos).indexOf(video);
+                        playVideo(video);
+                        markVideoAsPlayed(video.dataset.videoId);
+                    } else {
+                        video.pause();
+                    }
+                });
+            }, { threshold: 0.8 });
+            
+            videos.forEach(video => {
+                observer.observe(video);
+                
+                // Click to play/pause
+                video.addEventListener('click', function() {
+                    if (freeTimeLeft > 0) {
+                        if (video.paused) {
+                            video.play();
+                        } else {
+                            video.pause();
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Play video
+        function playVideo(video) {
+            if (freeTimeLeft <= 0) {
+                blockVideo(video);
+                return;
+            }
+            
+            videos.forEach(v => {
+                if (v !== video) v.pause();
+            });
+            
+            video.play().catch(e => {
+                console.log("Autoplay prevented:", e);
+            });
+        }
+        
+        // Block video when time expires
+        function blockVideo(video) {
+            video.classList.add('video-blocked');
+            
+            const videoItem = video.parentElement;
+            if (!videoItem.querySelector('.block-overlay')) {
+                const overlay = document.createElement('div');
+                overlay.className = 'block-overlay';
+                overlay.innerHTML = `
+                    <div class="block-message">
+                        <div class="block-title">Time's Up!</div>
+                        <div class="block-subtitle">Watch a short ad to continue</div>
+                        <button class="watch-ad-btn" onclick="showAd()">Watch Ad (10s)</button>
+                    </div>
+                `;
+                videoItem.appendChild(overlay);
+            }
+        }
+        
+        // Mark video as played
+        function markVideoAsPlayed(videoId) {
+            playedVideos.add(videoId);
+            
+            // If all videos played, reshuffle
+            if (playedVideos.size >= videoData.length) {
+                playedVideos.clear();
+                shuffleVideos();
+                // Recreate video elements with new order
+                const container = document.getElementById('reelContainer');
+                container.innerHTML = '';
+                createVideoElements();
+            }
+        }
+        
+        // Start free timer
+        function startFreeTimer() {
+            const timerDisplay = document.getElementById('timerDisplay');
+            
+            timerInterval = setInterval(() => {
+                freeTimeLeft--;
+                
+                const minutes = Math.floor(freeTimeLeft / 60);
+                const seconds = freeTimeLeft % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (freeTimeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = 'TIME UP';
+                    timerDisplay.classList.add('timer-expired');
+                    
+                    // Block current video
+                    if (videos[currentVideoIndex]) {
+                        blockVideo(videos[currentVideoIndex]);
+                    }
+                }
+            }, 1000);
+        }
+        
+        // Show advertisement
+        function showAd() {
+            const adModal = document.getElementById('adModal');
+            const adVideo = document.getElementById('adVideo');
+            const adTimer = document.getElementById('adTimer');
+            const adSkip = document.getElementById('adSkip');
+            
+            isAdPlaying = true;
+            adTimeLeft = 10;
+            adModal.style.display = 'flex';
+            
+            // Play ad video
+            adVideo.play();
+            
+            // Ad timer
+            adInterval = setInterval(() => {
+                adTimeLeft--;
+                adTimer.textContent = `Ad: ${adTimeLeft}s`;
+                
+                if (adTimeLeft <= 5) {
+                    adSkip.style.display = 'block';
+                }
+                
+                if (adTimeLeft <= 0) {
+                    skipAd();
+                }
+            }, 1000);
+        }
+        
+        // Skip advertisement
+        function skipAd() {
+            const adModal = document.getElementById('adModal');
+            const adVideo = document.getElementById('adVideo');
+            const adSkip = document.getElementById('adSkip');
+            
+            clearInterval(adInterval);
+            adVideo.pause();
+            adVideo.currentTime = 0;
+            adModal.style.display = 'none';
+            adSkip.style.display = 'none';
+            isAdPlaying = false;
+            
+            // Grant more free time
+            freeTimeLeft += 60;
+            
+            // Update timer display
+            const timerDisplay = document.getElementById('timerDisplay');
+            timerDisplay.classList.remove('timer-expired');
+            
+            // Remove block overlays
+            document.querySelectorAll('.block-overlay').forEach(overlay => {
+                overlay.remove();
+            });
+            
+            // Remove video blocks
+            document.querySelectorAll('.video-blocked').forEach(video => {
+                video.classList.remove('video-blocked');
+            });
+            
+            // Restart timer
+            startFreeTimer();
+            
+            // Resume current video
+            if (videos[currentVideoIndex]) {
+                playVideo(videos[currentVideoIndex]);
+            }
+        }
+        
+        // Admin Panel Communication
+        function refreshVideos() {
+            loadVideosFromAdmin();
+        }
+        
+        // Listen for admin panel updates
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'adminVideos') {
+                refreshVideos();
+            }
+        });
+        
+        // Prevent right click and keyboard shortcuts
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'J') ||
+                (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
+
