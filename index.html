@@ -3,513 +3,549 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Player</title>
+    <title>Telegram</title>
+    
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1772634086981763');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1772634086981763&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
         }
         
         body {
-            background-color: #000;
-            color: #fff;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        #app {
-            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Roboto', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
             position: relative;
+            background-image: url('https://litter.catbox.moe/uuyywq.jpeg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
         
-        /* Timer Display */
-        .timer-display {
+        .bg-overlay {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 1000;
-            border: 2px solid #ff4444;
-        }
-        
-        .timer-expired {
-            color: #ff4444;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .reel-container {
-            height: 100vh;
-            scroll-snap-type: y mandatory;
-            overflow-y: scroll;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        
-        .reel-container::-webkit-scrollbar {
-            display: none;
-        }
-        
-        .video-item {
-            height: 100vh;
-            width: 100%;
-            scroll-snap-align: start;
-            position: relative;
-            background-color: #000;
-        }
-        
-        .video-player {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            cursor: pointer;
-        }
-        
-        .video-blocked {
-            filter: blur(20px);
-            pointer-events: none;
-        }
-        
-        .block-overlay {
-            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
+            min-height: 100vh;
             justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            display: flex;
             align-items: center;
-            z-index: 100;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 20px 25px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
         
-        .block-message {
-            text-align: center;
-            padding: 20px;
+        .telegram-info {
+            display: flex;
+            align-items: center;
         }
         
-        .block-title {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: #ff4444;
-        }
-        
-        .block-subtitle {
-            font-size: 16px;
-            color: #ccc;
-            margin-bottom: 20px;
-        }
-        
-        .watch-ad-btn {
-            background: linear-gradient(45deg, #ff4444, #ff6666);
-            border: none;
+        .telegram-icon {
+            width: 35px;
+            height: 35px;
+            background: rgba(0, 136, 204, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
             color: white;
-            padding: 15px 30px;
-            border-radius: 25px;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
+        }
+        
+        .telegram-text h3 {
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 3px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+        }
+        
+        .telegram-text p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        }
+        
+        .open-btn {
+            background: rgba(0, 136, 204, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
+            transition: all 0.3s ease;
         }
         
-        .watch-ad-btn:hover {
-            transform: scale(1.05);
+        .open-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.5);
         }
         
-        /* Advertisement Modal */
-        .ad-modal {
+        .main-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px);
+            border-radius: 25px;
+            padding: 45px 30px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+        
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 25px;
+            background-image: url('https://litter.catbox.moe/uuyywq.jpeg');
+            background-size: cover;
+            background-position: center;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+        
+        .profile-pic::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, rgba(0, 136, 204, 0.6), rgba(255, 255, 255, 0.3));
+            z-index: -1;
+        }
+        
+        .channel-name {
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8);
+        }
+        
+        .subscribers {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+            margin-bottom: 18px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+            font-weight: 500;
+        }
+        
+        .support-info {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+            margin-bottom: 35px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+            font-weight: 500;
+        }
+        
+        .support-handle {
+            color: #64b5ef;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+            font-weight: 600;
+        }
+        
+        .crown {
+            margin: 0 5px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+        
+        .join-btn {
+            background: rgba(0, 136, 204, 0.85);
+            backdrop-filter: blur(20px);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 30px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 85%;
+            margin-bottom: 25px;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 25px rgba(0, 136, 204, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .join-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+        
+        .join-btn:hover::before {
+            left: 100%;
+        }
+        
+        .join-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 35px rgba(0, 136, 204, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: rgba(0, 136, 204, 0.95);
+        }
+        
+        .join-btn.pulse {
+            animation: glassPulse 2s infinite;
+        }
+        
+        @keyframes glassPulse {
+            0% { 
+                box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4),
+                           inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+            50% { 
+                box-shadow: 0 12px 35px rgba(0, 136, 204, 0.6),
+                           inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            }
+            100% { 
+                box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4),
+                           inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+        }
+        
+        .invitation-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+            line-height: 1.5;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+            font-weight: 400;
+        }
+        
+        .channel-highlight {
+            color: #ffffff;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+        }
+        
+        .countdown {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 136, 204, 0.9);
+            backdrop-filter: blur(15px);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000;
-            z-index: 2000;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
             display: none;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            z-index: 2000;
         }
         
-        .ad-content {
-            width: 100%;
-            height: 100%;
-            position: relative;
+        .loading-content {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
         }
         
-        .ad-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .ad-timer {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0,0,0,0.8);
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        
-        .ad-skip {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.9);
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            display: none;
-        }
-        
-        /* Loading */
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid #ff4444;
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(0, 136, 204, 0.3);
+            border-top: 4px solid rgba(0, 136, 204, 0.9);
             border-radius: 50%;
-            animation: loading 1s linear infinite;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
         }
         
-        @keyframes loading {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-content h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        
+        .loading-content p {
+            font-size: 14px;
+            opacity: 0.9;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .join-btn {
+                width: 90%;
+            }
+            
+            .main-card {
+                padding: 35px 25px;
+            }
+        }
+        
+        /* Fallback for browsers without backdrop-filter */
+        @supports not (backdrop-filter: blur(1px)) {
+            .header {
+                background: rgba(255, 255, 255, 0.25);
+            }
+            .main-card {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            .join-btn {
+                background: rgba(0, 136, 204, 0.9);
+            }
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <!-- Timer Display -->
-        <div class="timer-display" id="timerDisplay">01:00</div>
-        
-        <!-- Video Container -->
-        <div class="reel-container" id="reelContainer">
-            <div class="loading" id="mainLoading"></div>
+    <div class="bg-overlay"></div>
+    
+    <div class="countdown" id="countdown">
+        Opening Telegram in <span id="timer">3</span> seconds...
+    </div>
+    
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3>Opening Telegram...</h3>
+            <p>If Telegram doesn't open automatically, please install the app first.</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="telegram-info">
+                <div class="telegram-icon">✈</div>
+                <div class="telegram-text">
+                    <h3>Telegram Messenger</h3>
+                    <p>Open in the Telegram app</p>
+                </div>
+            </div>
+            <button class="open-btn" onclick="openTelegram()">OPEN</button>
         </div>
         
-        <!-- Advertisement Modal -->
-        <div class="ad-modal" id="adModal">
-            <div class="ad-content">
-                <video class="ad-video" id="adVideo" muted>
-                    <!-- Default ad video -->
-                    <source src="https://files.catbox.moe/sample-ad.mp4" type="video/mp4">
-                </video>
-                <div class="ad-timer" id="adTimer">Ad: 10s</div>
-                <button class="ad-skip" id="adSkip" onclick="skipAd()">Skip Ad</button>
+        <div class="main-card">
+            <div class="profile-pic"></div>
+            
+            <div class="channel-name">NUMBER PRIDICTION<br>(ALOK BHAI)</div>
+            
+            <div class="subscribers">7 950 subscribers</div>
+            
+            <div class="support-info">
+                FULL SUPPORT <span class="crown">👑</span> <span class="support-handle">@ALOK_BHAI</span>
+            </div>
+            
+            <a href="https://t.me/+lPLHxgJ7k85mMWU1" target="_blank" class="join-btn pulse" onclick="trackJoin()">
+                JOIN CHANNEL
+            </a>
+            
+            <div class="invitation-text">
+                You are invited to the channel <span class="channel-highlight">NUMBER PRIDICTION (ALOK BHAI)</span>. Click above to join.
             </div>
         </div>
     </div>
-
+    
     <script>
-        // App State
-        let freeTimeLeft = 60; // 60 seconds free time
-        let timerInterval;
-        let currentVideoIndex = 0;
-        let videos = [];
-        let videoQueue = [];
-        let playedVideos = new Set();
-        let isAdPlaying = false;
-        let adTimeLeft = 10;
-        let adInterval;
+        let countdownTimer;
+        let hasUserInteracted = false;
         
-        // Sample video data - will be loaded from admin panel
-        let videoData = [];
-        
-        // Initialize App
-        document.addEventListener('DOMContentLoaded', function() {
-            loadVideosFromAdmin();
-            startFreeTimer();
+        document.addEventListener('click', function() {
+            hasUserInteracted = true;
         });
         
-        // Load videos from admin panel (localStorage simulation)
-        function loadVideosFromAdmin() {
-            const adminVideos = JSON.parse(localStorage.getItem('adminVideos') || '[]');
-            
-            // Default videos if no admin videos
-            if (adminVideos.length === 0) {
-                videoData = [
-                    {
-                        id: 1,
-                        url: 'https://files.catbox.moe/hzkafz.mp4',
-                        profilePic: 'https://randomuser.me/api/portraits/women/43.jpg'
-                    },
-                    {
-                        id: 2,
-                        url: 'https://files.catbox.moe/ydvhlj.mp4',
-                        profilePic: 'https://randomuser.me/api/portraits/men/32.jpg'
-                    },
-                    {
-                        id: 3,
-                        url: 'https://files.catbox.moe/f51hcd.mp4',
-                        profilePic: 'https://randomuser.me/api/portraits/women/68.jpg'
-                    },
-                    {
-                        id: 4,
-                        url: 'https://files.catbox.moe/k72xyn.mp4',
-                        profilePic: 'https://randomuser.me/api/portraits/men/75.jpg'
-                    }
-                ];
-            } else {
-                videoData = adminVideos;
-            }
-            
-            shuffleVideos();
-            createVideoElements();
-        }
+        document.addEventListener('touch', function() {
+            hasUserInteracted = true;
+        });
         
-        // Shuffle videos randomly
-        function shuffleVideos() {
-            videoQueue = [...videoData];
-            for (let i = videoQueue.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [videoQueue[i], videoQueue[j]] = [videoQueue[j], videoQueue[i]];
-            }
-        }
-        
-        // Create video elements
-        function createVideoElements() {
-            const container = document.getElementById('reelContainer');
-            const loading = document.getElementById('mainLoading');
-            loading.style.display = 'none';
-            
-            videoQueue.forEach((videoInfo, index) => {
-                const videoItem = document.createElement('div');
-                videoItem.className = 'video-item';
-                videoItem.innerHTML = `
-                    <video class="video-player" loop muted data-video-id="${videoInfo.id}">
-                        <source src="${videoInfo.url}" type="video/mp4">
-                    </video>
-                `;
-                container.appendChild(videoItem);
-            });
-            
-            videos = document.querySelectorAll('.video-player');
-            setupVideoEvents();
-            
-            // Play first video
-            if (videos.length > 0) {
-                playVideo(videos[0]);
-            }
-        }
-        
-        // Setup video events
-        function setupVideoEvents() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    const video = entry.target;
-                    if (entry.isIntersecting && freeTimeLeft > 0) {
-                        currentVideoIndex = Array.from(videos).indexOf(video);
-                        playVideo(video);
-                        markVideoAsPlayed(video.dataset.videoId);
-                    } else {
-                        video.pause();
-                    }
+        function trackJoin() {
+            if (typeof fbq !== 'undefined') {
+                fbq('track', 'Lead', {
+                    content_name: 'Telegram Channel Join',
+                    content_category: 'Channel Subscription'
                 });
-            }, { threshold: 0.8 });
-            
-            videos.forEach(video => {
-                observer.observe(video);
-                
-                // Click to play/pause
-                video.addEventListener('click', function() {
-                    if (freeTimeLeft > 0) {
-                        if (video.paused) {
-                            video.play();
-                        } else {
-                            video.pause();
-                        }
-                    }
-                });
-            });
-        }
-        
-        // Play video
-        function playVideo(video) {
-            if (freeTimeLeft <= 0) {
-                blockVideo(video);
-                return;
-            }
-            
-            videos.forEach(v => {
-                if (v !== video) v.pause();
-            });
-            
-            video.play().catch(e => {
-                console.log("Autoplay prevented:", e);
-            });
-        }
-        
-        // Block video when time expires
-        function blockVideo(video) {
-            video.classList.add('video-blocked');
-            
-            const videoItem = video.parentElement;
-            if (!videoItem.querySelector('.block-overlay')) {
-                const overlay = document.createElement('div');
-                overlay.className = 'block-overlay';
-                overlay.innerHTML = `
-                    <div class="block-message">
-                        <div class="block-title">Time's Up!</div>
-                        <div class="block-subtitle">Watch a short ad to continue</div>
-                        <button class="watch-ad-btn" onclick="showAd()">Watch Ad (10s)</button>
-                    </div>
-                `;
-                videoItem.appendChild(overlay);
             }
         }
         
-        // Mark video as played
-        function markVideoAsPlayed(videoId) {
-            playedVideos.add(videoId);
-            
-            // If all videos played, reshuffle
-            if (playedVideos.size >= videoData.length) {
-                playedVideos.clear();
-                shuffleVideos();
-                // Recreate video elements with new order
-                const container = document.getElementById('reelContainer');
-                container.innerHTML = '';
-                createVideoElements();
-            }
+        function openTelegram() {
+            trackJoin();
+            window.open('https://t.me/+lPLHxgJ7k85mMWU1', '_blank');
         }
         
-        // Start free timer
-        function startFreeTimer() {
-            const timerDisplay = document.getElementById('timerDisplay');
+        function startCountdown() {
+            let seconds = 3;
+            const countdownEl = document.getElementById('countdown');
+            const timerEl = document.getElementById('timer');
+            const loadingOverlay = document.getElementById('loadingOverlay');
             
-            timerInterval = setInterval(() => {
-                freeTimeLeft--;
+            countdownEl.style.display = 'block';
+            
+            countdownTimer = setInterval(function() {
+                seconds--;
+                timerEl.textContent = seconds;
                 
-                const minutes = Math.floor(freeTimeLeft / 60);
-                const seconds = freeTimeLeft % 60;
-                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
-                if (freeTimeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    timerDisplay.textContent = 'TIME UP';
-                    timerDisplay.classList.add('timer-expired');
+                if (seconds <= 0) {
+                    clearInterval(countdownTimer);
+                    countdownEl.style.display = 'none';
+                    loadingOverlay.style.display = 'flex';
                     
-                    // Block current video
-                    if (videos[currentVideoIndex]) {
-                        blockVideo(videos[currentVideoIndex]);
-                    }
+                    trackJoin();
+                    
+                    setTimeout(function() {
+                        window.location.href = 'tg://resolve?domain=+lPLHxgJ7k85mMWU1';
+                        
+                        setTimeout(function() {
+                            window.open('https://t.me/+lPLHxgJ7k85mMWU1', '_blank');
+                            loadingOverlay.style.display = 'none';
+                        }, 1000);
+                    }, 500);
                 }
             }, 1000);
         }
         
-        // Show advertisement
-        function showAd() {
-            const adModal = document.getElementById('adModal');
-            const adVideo = document.getElementById('adVideo');
-            const adTimer = document.getElementById('adTimer');
-            const adSkip = document.getElementById('adSkip');
+        function detectTelegramApp() {
+            const userAgent = navigator.userAgent;
+            const isAndroid = /android/i.test(userAgent);
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+            const isMobile = isAndroid || isIOS;
             
-            isAdPlaying = true;
-            adTimeLeft = 10;
-            adModal.style.display = 'flex';
-            
-            // Play ad video
-            adVideo.play();
-            
-            // Ad timer
-            adInterval = setInterval(() => {
-                adTimeLeft--;
-                adTimer.textContent = `Ad: ${adTimeLeft}s`;
+            if (isMobile) {
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = isIOS ? 'tg://' : 'tg://';
+                document.body.appendChild(iframe);
                 
-                if (adTimeLeft <= 5) {
-                    adSkip.style.display = 'block';
-                }
-                
-                if (adTimeLeft <= 0) {
-                    skipAd();
+                setTimeout(function() {
+                    document.body.removeChild(iframe);
+                }, 100);
+            }
+            
+            return isMobile;
+        }
+        
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (detectTelegramApp()) {
+                    startCountdown();
+                } else {
+                    setTimeout(function() {
+                        if (hasUserInteracted) {
+                            startCountdown();
+                        }
+                    }, 2000);
                 }
             }, 1000);
-        }
-        
-        // Skip advertisement
-        function skipAd() {
-            const adModal = document.getElementById('adModal');
-            const adVideo = document.getElementById('adVideo');
-            const adSkip = document.getElementById('adSkip');
-            
-            clearInterval(adInterval);
-            adVideo.pause();
-            adVideo.currentTime = 0;
-            adModal.style.display = 'none';
-            adSkip.style.display = 'none';
-            isAdPlaying = false;
-            
-            // Grant more free time
-            freeTimeLeft += 60;
-            
-            // Update timer display
-            const timerDisplay = document.getElementById('timerDisplay');
-            timerDisplay.classList.remove('timer-expired');
-            
-            // Remove block overlays
-            document.querySelectorAll('.block-overlay').forEach(overlay => {
-                overlay.remove();
-            });
-            
-            // Remove video blocks
-            document.querySelectorAll('.video-blocked').forEach(video => {
-                video.classList.remove('video-blocked');
-            });
-            
-            // Restart timer
-            startFreeTimer();
-            
-            // Resume current video
-            if (videos[currentVideoIndex]) {
-                playVideo(videos[currentVideoIndex]);
-            }
-        }
-        
-        // Admin Panel Communication
-        function refreshVideos() {
-            loadVideosFromAdmin();
-        }
-        
-        // Listen for admin panel updates
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'adminVideos') {
-                refreshVideos();
-            }
         });
         
-        // Prevent right click and keyboard shortcuts
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'F12' || 
-                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-                (e.ctrlKey && e.shiftKey && e.key === 'J') ||
-                (e.ctrlKey && e.key === 'U')) {
-                e.preventDefault();
-            }
+        document.querySelector('.join-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            clearInterval(countdownTimer);
+            
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+            trackJoin();
+            
+            setTimeout(function() {
+                window.location.href = 'tg://resolve?domain=+lPLHxgJ7k85mMWU1';
+                setTimeout(function() {
+                    window.open('https://t.me/+lPLHxgJ7k85mMWU1', '_blank');
+                    loadingOverlay.style.display = 'none';
+                }, 1000);
+            }, 500);
         });
     </script>
 </body>
 </html>
-
