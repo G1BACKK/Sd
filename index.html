@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -167,6 +168,12 @@
             border: 3px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .profile-pic:hover {
+            transform: scale(1.05);
         }
         
         .profile-pic::before {
@@ -363,6 +370,151 @@
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
         }
         
+        /* Admin Panel Styles */
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+        
+        .admin-panel {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px);
+            padding: 30px;
+            border-radius: 25px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+        
+        .admin-panel h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 24px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        
+        .admin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .admin-form input, .admin-form textarea {
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+        
+        .admin-form input::placeholder, .admin-form textarea::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .admin-btn {
+            background: rgba(0, 136, 204, 0.85);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-btn:hover {
+            background: rgba(0, 136, 204, 1);
+        }
+        
+        .close-admin {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .products-container {
+            margin-top: 30px;
+        }
+        
+        .product-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        
+        .product-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .original-price {
+            text-decoration: line-through;
+            opacity: 0.7;
+            font-size: 14px;
+        }
+        
+        .discounted-price {
+            font-weight: bold;
+            color: #64b5ef;
+        }
+        
+        .buy-btn {
+            background: rgba(0, 200, 83, 0.8);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .buy-btn:hover {
+            background: rgba(0, 200, 83, 1);
+        }
+        
+        .admin-login {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
         @media (max-width: 480px) {
             .container {
                 padding: 0 10px;
@@ -374,6 +526,10 @@
             
             .main-card {
                 padding: 35px 25px;
+            }
+            
+            .admin-panel {
+                padding: 20px;
             }
         }
         
@@ -387,6 +543,9 @@
             }
             .join-btn {
                 background: rgba(0, 136, 204, 0.9);
+            }
+            .admin-panel {
+                background: rgba(255, 255, 255, 0.25);
             }
         }
     </style>
@@ -406,6 +565,34 @@
         </div>
     </div>
     
+    <!-- Admin Panel Overlay -->
+    <div class="admin-overlay" id="adminOverlay">
+        <div class="admin-panel">
+            <button class="close-admin" onclick="closeAdminPanel()">✕</button>
+            <h2 id="adminPanelTitle">Admin Login</h2>
+            
+            <div id="adminLogin" class="admin-login">
+                <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+                <button class="admin-btn" onclick="loginAdmin()">Login</button>
+            </div>
+            
+            <div id="adminContent" style="display: none;">
+                <div class="admin-form">
+                    <input type="text" id="productName" placeholder="Product Name">
+                    <input type="text" id="productImage" placeholder="Product Image URL">
+                    <input type="number" id="originalPrice" placeholder="Original Price">
+                    <input type="number" id="discountedPrice" placeholder="Discounted Price">
+                    <input type="text" id="buyLink" placeholder="Buy Now Link">
+                    <button class="admin-btn" onclick="addProduct()">Add Product</button>
+                </div>
+                
+                <div class="products-container" id="productsContainer">
+                    <!-- Products will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="container">
         <div class="header">
             <div class="telegram-info">
@@ -419,7 +606,7 @@
         </div>
         
         <div class="main-card">
-            <div class="profile-pic"></div>
+            <div class="profile-pic" id="profilePic"></div>
             
             <div class="channel-name">NUMBER PRIDICTION<br>(ALOK BHAI)</div>
             
@@ -436,12 +623,22 @@
             <div class="invitation-text">
                 You are invited to the channel <span class="channel-highlight">NUMBER PRIDICTION (ALOK BHAI)</span>. Click above to join.
             </div>
+            
+            <!-- Products section -->
+            <div id="productsSection" style="margin-top: 30px;"></div>
         </div>
     </div>
     
     <script>
         let countdownTimer;
         let hasUserInteracted = false;
+        let clickCount = 0;
+        let lastClickTime = 0;
+        const ADMIN_PASSWORD = "G1BACK";
+        let isAdminLoggedIn = false;
+        
+        // Initialize products from localStorage
+        let products = JSON.parse(localStorage.getItem('products')) || [];
         
         document.addEventListener('click', function() {
             hasUserInteracted = true;
@@ -516,7 +713,157 @@
             return isMobile;
         }
         
+        // Admin functionality
+        function handleProfileClick() {
+            const currentTime = new Date().getTime();
+            const timeDiff = currentTime - lastClickTime;
+            
+            // Reset count if more than 1 second has passed since last click
+            if (timeDiff > 1000) {
+                clickCount = 0;
+            }
+            
+            clickCount++;
+            lastClickTime = currentTime;
+            
+            if (clickCount >= 3) {
+                clickCount = 0;
+                openAdminPanel();
+            }
+        }
+        
+        function openAdminPanel() {
+            const adminOverlay = document.getElementById('adminOverlay');
+            adminOverlay.style.display = 'flex';
+            
+            // Reset admin state when opening panel
+            if (!isAdminLoggedIn) {
+                document.getElementById('adminLogin').style.display = 'flex';
+                document.getElementById('adminContent').style.display = 'none';
+                document.getElementById('adminPanelTitle').textContent = 'Admin Login';
+                document.getElementById('adminPassword').value = '';
+            } else {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                document.getElementById('adminPanelTitle').textContent = 'Admin Panel';
+            }
+        }
+        
+        function closeAdminPanel() {
+            const adminOverlay = document.getElementById('adminOverlay');
+            adminOverlay.style.display = 'none';
+        }
+        
+        function loginAdmin() {
+            const passwordInput = document.getElementById('adminPassword');
+            
+            if (passwordInput.value === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                document.getElementById('adminPanelTitle').textContent = 'Admin Panel';
+            } else {
+                alert('Incorrect password!');
+                passwordInput.value = '';
+            }
+        }
+        
+        function addProduct() {
+            const name = document.getElementById('productName').value;
+            const imageUrl = document.getElementById('productImage').value;
+            const originalPrice = document.getElementById('originalPrice').value;
+            const discountedPrice = document.getElementById('discountedPrice').value;
+            const buyLink = document.getElementById('buyLink').value;
+            
+            if (!name || !imageUrl || !originalPrice || !discountedPrice || !buyLink) {
+                alert('Please fill all fields!');
+                return;
+            }
+            
+            const product = {
+                name,
+                imageUrl,
+                originalPrice,
+                discountedPrice,
+                buyLink
+            };
+            
+            products.push(product);
+            localStorage.setItem('products', JSON.stringify(products));
+            
+            // Clear form
+            document.getElementById('productName').value = '';
+            document.getElementById('productImage').value = '';
+            document.getElementById('originalPrice').value = '';
+            document.getElementById('discountedPrice').value = '';
+            document.getElementById('buyLink').value = '';
+            
+            renderProducts();
+            alert('Product added successfully!');
+        }
+        
+        function renderProducts() {
+            const productsContainer = document.getElementById('productsContainer');
+            const productsSection = document.getElementById('productsSection');
+            
+            // Clear existing products
+            productsContainer.innerHTML = '';
+            productsSection.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsContainer.innerHTML = '<p style="text-align: center; opacity: 0.7;">No products added yet.</p>';
+                return;
+            }
+            
+            // Render products in admin panel
+            products.forEach((product, index) => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product-item';
+                productElement.innerHTML = `
+                    <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
+                    <h3>${product.name}</h3>
+                    <div class="product-price">
+                        <span class="original-price">₹${product.originalPrice}</span>
+                        <span class="discounted-price">₹${product.discountedPrice}</span>
+                    </div>
+                    <a href="${product.buyLink}" target="_blank" class="buy-btn">BUY NOW</a>
+                    <button class="admin-btn" onclick="deleteProduct(${index})">Delete</button>
+                `;
+                productsContainer.appendChild(productElement);
+            });
+            
+            // Render products in main page
+            products.forEach(product => {
+                const productElement = document.createElement('div');
+                productElement.className = 'product-item';
+                productElement.innerHTML = `
+                    <img src="${product.imageUrl}" alt="${product.name}" class="product-image">
+                    <h3>${product.name}</h3>
+                    <div class="product-price">
+                        <span class="original-price">₹${product.originalPrice}</span>
+                        <span class="discounted-price">₹${product.discountedPrice}</span>
+                    </div>
+                    <a href="${product.buyLink}" target="_blank" class="buy-btn">BUY NOW</a>
+                `;
+                productsSection.appendChild(productElement);
+            });
+        }
+        
+        function deleteProduct(index) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                products.splice(index, 1);
+                localStorage.setItem('products', JSON.stringify(products));
+                renderProducts();
+            }
+        }
+        
         window.addEventListener('load', function() {
+            // Add click event to profile picture
+            document.getElementById('profilePic').addEventListener('click', handleProfileClick);
+            
+            // Render existing products
+            renderProducts();
+            
             setTimeout(function() {
                 if (detectTelegramApp()) {
                     startCountdown();
