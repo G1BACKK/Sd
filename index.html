@@ -1,29 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram</title>
-    
-    <!-- Meta Pixel Code -->
-    <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1772634086981763');
-    fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1772634086981763&ev=PageView&noscript=1"
-    /></noscript>
-    <!-- End Meta Pixel Code -->
-    
+    <title>Telegram Channel</title>
     <style>
         * {
             margin: 0;
@@ -515,6 +495,30 @@
             gap: 15px;
         }
         
+        .android-fallback {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .android-fallback p {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .copy-btn {
+            background: rgba(0, 136, 204, 0.85);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
         @media (max-width: 480px) {
             .container {
                 padding: 0 10px;
@@ -624,6 +628,12 @@
                 You are invited to the channel <span class="channel-highlight">NUMBER PRIDICTION (ALOK BHAI)</span>. Click above to join.
             </div>
             
+            <!-- Android fallback section -->
+            <div class="android-fallback" id="androidFallback" style="display: none;">
+                <p>Having issues joining on Android?</p>
+                <button class="copy-btn" onclick="copyInviteLink()">Copy Invite Link</button>
+            </div>
+            
             <!-- Products section -->
             <div id="productsSection" style="margin-top: 30px;"></div>
         </div>
@@ -682,12 +692,30 @@
                     trackJoin();
                     
                     setTimeout(function() {
-                        window.location.href = 'tg://resolve?domain=+lPLHxgJ7k85mMWU1';
+                        // Try to open Telegram app with different URL formats
+                        const isAndroid = /android/i.test(navigator.userAgent);
                         
-                        setTimeout(function() {
-                            window.open('https://t.me/+lPLHxgJ7k85mMWU1', '_blank');
-                            loadingOverlay.style.display = 'none';
-                        }, 1000);
+                        if (isAndroid) {
+                            // For Android, try multiple URL formats
+                            window.location.href = 'tg://resolve?domain=lPLHxgJ7k85mMWU1';
+                            
+                            setTimeout(function() {
+                                window.location.href = 'tg://resolve?domain=+lPLHxgJ7k85mMWU1';
+                                
+                                setTimeout(function() {
+                                    window.open('https://t.me/+lPLHxgJ7k85mMWU1', '_blank');
+                                    loadingOverlay.style.display = 'none';
+                                }, 1000);
+                            }, 1000);
+                        } else {
+                            // For iOS
+                            window.location.href = 'tg://resolve?domain=+lPLHxgJ7k85mMWU1';
+                            
+                            setTimeout(function() {
+                                window.open('https://t.me/+lPLHxgJ7k85mMWU1', '_blank');
+                                loadingOverlay.style.display = 'none';
+                            }, 1000);
+                        }
                     }, 500);
                 }
             }, 1000);
@@ -711,6 +739,28 @@
             }
             
             return isMobile;
+        }
+        
+        // Show Android fallback if on Android device
+        function checkAndroidFallback() {
+            const isAndroid = /android/i.test(navigator.userAgent);
+            const androidFallback = document.getElementById('androidFallback');
+            
+            if (isAndroid) {
+                androidFallback.style.display = 'block';
+            }
+        }
+        
+        // Copy invite link to clipboard
+        function copyInviteLink() {
+            const tempInput = document.createElement('input');
+            tempInput.value = 'https://t.me/+lPLHxgJ7k85mMWU1';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            
+            alert('Invite link copied to clipboard! You can paste it directly into Telegram.');
         }
         
         // Admin functionality
@@ -864,6 +914,9 @@
             // Render existing products
             renderProducts();
             
+            // Check if we need to show Android fallback
+            checkAndroidFallback();
+            
             setTimeout(function() {
                 if (detectTelegramApp()) {
                     startCountdown();
@@ -886,11 +939,29 @@
             trackJoin();
             
             setTimeout(function() {
-                window.location.href = 'tg://resolve?domain=+lPLHxgJ7k85mMWU1';
-                setTimeout(function() {
-                    window.open('https://t.me/+lPLHxgJ7k85mMWU1', '_blank');
-                    loadingOverlay.style.display = 'none';
-                }, 1000);
+                const isAndroid = /android/i.test(navigator.userAgent);
+                
+                if (isAndroid) {
+                    // For Android, try multiple URL formats
+                    window.location.href = 'tg://resolve?domain=lPLHxgJ7k85mMWU1';
+                    
+                    setTimeout(function() {
+                        window.location.href = 'tg://resolve?domain=+lPLHxgJ7k85mMWU1';
+                        
+                        setTimeout(function() {
+                            window.open('https://t.me/+lPLHxgJ7k85mMWU1', '_blank');
+                            loadingOverlay.style.display = 'none';
+                        }, 1000);
+                    }, 1000);
+                } else {
+                    // For iOS
+                    window.location.href = 'tg://resolve?domain=+lPLHxgJ7k85mMWU1';
+                    
+                    setTimeout(function() {
+                        window.open('https://t.me/+lPLHxgJ7k85mMWU1', '_blank');
+                        loadingOverlay.style.display = 'none';
+                    }, 1000);
+                }
             }, 500);
         });
     </script>
